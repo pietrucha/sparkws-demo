@@ -45,10 +45,10 @@ public class WebSocketHandler {
         sessions.add(user);
         System.out.println("Connect user = [" + user + "]");
         if (ex == null) {
-            ex = Executors.newScheduledThreadPool(1);
+            ex = Executors.newScheduledThreadPool(2);
             Runnable task = () -> {
-                double latD = r.nextDouble() * .001 + 49.74d;
-                double lanD = r.nextDouble() * .001 + 21.42d;
+                double latD = r.nextDouble() * .01 + 49.74d;
+                double lanD = r.nextDouble() * .01 + 21.42d;
                 //                String msg = latD + "," + lanD;
                 String msg="{ \"type\": \"Feature\", "
                     + "\"geometry\": { "
@@ -70,7 +70,7 @@ public class WebSocketHandler {
                     }
                 });
             };
-            ex.scheduleWithFixedDelay(task, 0, 5, TimeUnit.SECONDS);
+            ex.scheduleWithFixedDelay(task, 0, 1, TimeUnit.SECONDS);
         }
     }
 
