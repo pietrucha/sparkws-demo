@@ -12,6 +12,8 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Created by ppietrucha on 2016-12-16.
@@ -24,17 +26,16 @@ public class WebSocketHandler {
     private Random r = new Random();
 
     /**
-     *
      * {
-     "type": "Feature",
-     "geometry": {
-     "type": "Point",
-     "coordinates": [125.6, 10.1]
-     },
-     "properties": {
-     "name": "Dinagat Islands"
-     }
-     }
+     * "type": "Feature",
+     * "geometry": {
+     * "type": "Point",
+     * "coordinates": [125.6, 10.1]
+     * },
+     * "properties": {
+     * "name": "Dinagat Islands"
+     * }
+     * }
      *
      * @param user
      * @throws Exception
@@ -47,31 +48,40 @@ public class WebSocketHandler {
         if (ex == null) {
             ex = Executors.newScheduledThreadPool(2);
             Runnable task = () -> {
-                double latD = r.nextDouble() * .01 + 49.74d;
-                double lanD = r.nextDouble() * .01 + 21.42d;
-                //                String msg = latD + "," + lanD;
-                String msg="{ \"type\": \"Feature\", "
-                    + "\"geometry\": { "
-                        + "\"type\": \"Point\","
-                        + "\"coordinates\": ["+lanD+","+latD+"] "
-                    + "},"
-                    + "\"properties\": { "
-                        + "\"name\": \"Dinagat Islands\""
-                    + "}"
-                + "}";
+                String result = IntStream.range(0, 10).mapToObj(i -> {
+                    String id = "" + i;
+                    return getGeoJson(id);
+                }).collect(Collectors.joining(", ", "[", "]"));
 
-//                String msg = "{ \"type\": \"Point\", \"coordinates\": [" + latD + ", " + lanD + "] }";
                 sessions.stream().filter(Session::isOpen).forEach(session -> {
                     try {
-                        System.out.println("user = [" + session.getRemoteAddress().getHostName() + "] send:" + msg);
-                        session.getRemote().sendString(String.valueOf(msg));
+                        System.out.println("user = [" + session.getRemoteAddress().getHostName() + "] send:" + result);
+                        session.getRemote().sendString(String.valueOf(result));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 });
             };
-            ex.scheduleWithFixedDelay(task, 0, 1, TimeUnit.SECONDS);
+            ex.scheduleWithFixedDelay(task, 0, 3, TimeUnit.SECONDS);
         }
+    }
+
+    private String getGeoJson(String id) {
+        double v = r.nextDouble() * .1;
+        double w = r.nextDouble() * .1;
+        double latD = (r.nextBoolean()) ? 49.74d + v : 49.74d - v;
+        double lanD = (r.nextBoolean()) ? 21.42d + w : 21.42d - w;
+        //                String msg = latD + "," + lanD;
+        String msg = "{ \"type\": \"Feature\", "
+                     + "\"geometry\": { "
+                     + "\"type\": \"Point\","
+                     + "\"coordinates\": [" + lanD + "," + latD + "] "
+                     + "},"
+                     + "\"properties\": { "
+                     + "\"name\": \"" + id + "\""
+                     + "}"
+                     + "}";
+        return msg;
     }
 
     @OnWebSocketClose
