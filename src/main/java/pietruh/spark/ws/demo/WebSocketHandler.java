@@ -62,7 +62,7 @@ public class WebSocketHandler {
                     }
                 });
             };
-            ex.scheduleWithFixedDelay(task, 0, 3, TimeUnit.SECONDS);
+            ex.scheduleWithFixedDelay(task, 0, 10, TimeUnit.SECONDS);
         }
     }
 
