@@ -1,25 +1,31 @@
 package pietruh.spark.ws.demo;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.LineString;
-import org.geotools.geometry.jts.JTSFactoryFinder;
-import pietruh.spark.ws.demo.model.Line;
-import spark.Route;
+import static spark.Spark.before;
+import static spark.Spark.get;
+import static spark.Spark.init;
+import static spark.Spark.options;
+import static spark.Spark.port;
+import static spark.Spark.webSocket;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static spark.Spark.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+
+import pietruh.spark.ws.demo.model.Line;
+import spark.Route;
 
 /**
  * Created by ppietrucha on 2016-12-16.
  */
-public class Runner {
+public class RunnerMock {
 
-    private Runner() {
+    private RunnerMock() {
 
     }
 
@@ -32,10 +38,10 @@ public class Runner {
         Route route = (req, res) -> {
             try {
                 Coordinate[] coords =
-                      new Coordinate[] { new Coordinate(49.75177, 21.48067), new Coordinate(49.74534, 21.47338), new Coordinate(49.7419, 21.46857),
-                            new Coordinate(49.73713, 21.46634) };
+                        new Coordinate[]{new Coordinate(49.75177, 21.48067), new Coordinate(49.74534, 21.47338), new Coordinate(49.7419, 21.46857),
+                                new Coordinate(49.73713, 21.46634)};
 
-                LineString line = JTSFactoryFinder.getGeometryFactory().createLineString(coords);
+                LineString line = new GeometryFactory().createLineString(coords);
                 Line l = new Line();
                 l.setName(req.params(":id"));
                 l.setGeometry(line);
@@ -60,24 +66,24 @@ public class Runner {
         });
 
         options("/*",
-              (request, response) -> {
+                (request, response) -> {
 
-                  String accessControlRequestHeaders = request
-                        .headers("Access-Control-Request-Headers");
-                  if (accessControlRequestHeaders != null) {
-                      response.header("Access-Control-Allow-Headers",
-                            accessControlRequestHeaders);
-                  }
+                    String accessControlRequestHeaders = request
+                            .headers("Access-Control-Request-Headers");
+                    if (accessControlRequestHeaders != null) {
+                        response.header("Access-Control-Allow-Headers",
+                                accessControlRequestHeaders);
+                    }
 
-                  String accessControlRequestMethod = request
-                        .headers("Access-Control-Request-Method");
-                  if (accessControlRequestMethod != null) {
-                      response.header("Access-Control-Allow-Methods",
-                            accessControlRequestMethod);
-                  }
+                    String accessControlRequestMethod = request
+                            .headers("Access-Control-Request-Method");
+                    if (accessControlRequestMethod != null) {
+                        response.header("Access-Control-Allow-Methods",
+                                accessControlRequestMethod);
+                    }
 
-                  return "OK";
-              });
+                    return "OK";
+                });
 
         before((request, response) -> response.header("Access-Control-Allow-Origin", "*"));
         init();
